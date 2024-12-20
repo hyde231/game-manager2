@@ -10,7 +10,7 @@ from src.enums.GameRender import GameRender
 from src.GameScraper import GameScraper
 from src.Game import Game
 
-class LewdCornerGamerScraper(GameScraper):
+class LewdCornerGameScraper(GameScraper):
     name: str = "LewdCorner"
     subdomain: Optional[str] = None
     domain: str = "lewdcorner"
@@ -34,7 +34,7 @@ class LewdCornerGamerScraper(GameScraper):
         soup = BeautifulSoup(text, "html.parser")
         data: Dict[str, Optional[str]] = {
             "url": final_url,
-            "source": LewdCornerGamerScraper.name
+            "source": LewdCornerGameScraper.name
         }
 
         try:
@@ -128,7 +128,7 @@ class LewdCornerGamerScraper(GameScraper):
                 "Wolf RPG": GameEngine.WOLFRPG
             }
             data["game_engine"] = GameEngine.UNKNOWN # Default
-            for text, engine in engine_mapping.items():
+            for text, engine in engine_mappings.items():
                 if headline.find("span", string=lambda t: t.lower() == text.lower() or t.lower() == f"[{text.lower()}]"):
                     data["game_engine"] = engine
                     break  # Exit the loop once a match is found
@@ -145,7 +145,7 @@ class LewdCornerGamerScraper(GameScraper):
                 "VAM": GameRender.VAM
             }
             data["game_render"] = GameRender.UNKNOWN # DEFAULT
-            for text, render in render_mapping.items():
+            for text, render in render_mappings.items():
                 if headline.find("span", string=lambda t: t.lower() == text.lower() or t.lower() == f"[{text.lower()}]"):
                     data["game_render"] = render
                     break  # Exit the loop once a match is found

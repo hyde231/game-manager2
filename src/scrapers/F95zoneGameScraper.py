@@ -167,7 +167,7 @@ class F95zoneGameScraper(GameScraper):
                 "Wolf RPG": GameEngine.WOLFRPG
             }
             data["game_engine"] = GameEngine.UNKNOWN # Default
-            for text, engine in engine_mapping.items():
+            for text, engine in engine_mappings.items():
                 if headline.find("span", string=lambda t: t.lower() == text.lower() or t.lower() == f"[{text.lower()}]"):
                     data["game_engine"] = engine
                     break  # Exit the loop once a match is found
@@ -184,7 +184,7 @@ class F95zoneGameScraper(GameScraper):
                 "VAM": GameRender.VAM
             }
             data["game_render"] = GameRender.UNKNOWN # DEFAULT
-            for text, render in render_mapping.items():
+            for text, render in render_mappings.items():
                 if headline.find("span", string=lambda t: t.lower() == text.lower() or t.lower() == f"[{text.lower()}]"):
                     data["game_render"] = render
                     break  # Exit the loop once a match is found

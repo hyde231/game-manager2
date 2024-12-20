@@ -13,6 +13,7 @@ class GameEngine(str,Enum):
     RENPY =     "renpy"
     RPGM =      "rpgm"
     TADS =      "tads"
+    TWINE =     "twine"
     UNITY =     "unity"
     UNKNOWN =   "unknown"
     UNREAL =    "unreal" #Unreal Engine
