@@ -1,0 +1,9 @@
+.venv/
+**/__pycache__/
+
+# Real data
+data/cookies/*
+data/tag_translation.json
+data/gamelist.json
+urls.txt
+gameindex.html

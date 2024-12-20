@@ -1,0 +1,13 @@
+Flask
+requests
+beautifulsoup4
+tldextract
+Jinja2
+markdown
+markdownify
+python-dateutil
+selenium
+undetected_chromedriver
+charset-normalizer
+cloudscraper
+Pillow

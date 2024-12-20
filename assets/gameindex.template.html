@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="./assets/gameindex.css">
+</head>
+<body>
+    <h1>{{ heading }}</h1>
+    <button id='resetButton'>Reset filters</button>
+    <input type='text' id='filterInput' placeholder='Type to filter titles...'>
+    
+    Status: 
+    <select id="statusFilter">
+        <option value="any">All</option>
+        <option value="active">Active only</option>
+        <option value="completed">Completed only</option>
+        <option value="abandoned">Abandoned only</option>
+    </select>
+    &nbsp;
+    Source:
+    <select id="domainFilter">
+        <option value="all">All Domains</option>
+        <!-- Other options will be added dynamically -->
+    </select>
+    &nbsp;
+    Tags:
+    <span id='filterTagsContainer'></span>
+    <br>
+
+    <span id="paginationControls">
+        <button id="firstPage">|&lt;</button>
+        <button id="prevPage">&nbsp;&lt;&nbsp;</button>
+        <span id="currentPage">1</span>
+        <button id="nextPage">&nbsp;&gt;&nbsp;</button>
+        <button id="lastPage">&gt;|</button>
+    </span> &nbsp;
+    <select id="itemsPerPage">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="1000">1000</option>
+    </select> items per page.
+    Sort order: 
+    <select id="sortOrder">
+        <option value="alphabetical" selected>Alphabetical</option>
+        <option value="lastUpdated">Last Updated</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="random">Random</option>
+    </select>
+
+    <hr>
+    <!-- Lightbox structure -->
+    <div id="lightbox" style="display: none;">
+        <span class="close" onclick="closeLightbox()">&times;</span>
+        <div id="lightboxTitle" class="lightboxTitle"></div>
+        <img id="lightboxImg" src="">
+        <div id="caption" class="caption"></div>
+    </div>
+
+    <div class='cardContainer'>
+        {% for game in games %}
+            <div class='card {{ "watch" if game.watch else "" }} {{ game.status if game.status else "" }}' 
+                data-updated='{{ game.updated if game.updated else "" }}' data-published='{{ game.published if game.published else "" }}' 
+            >
+                {% if game.status == 'completed' %}
+                    <div class='completedBadge'>Completed</div>
+                {% endif %}
+                {% if game.status == 'abandoned' %}
+                    <div class='abandonedBadge'>Abandoned</div>
+                {% endif %}
+                
+                <div class='card-image' onclick="openLightbox('{{game.title.replace(' ', '%20').replace("'","%27")}}',{{game.images}})">
+                    {% if game.cover_img %}
+                        <img src='{{ game.cover_img }}' />
+                    {% endif %}
+                </div>
+                <div class='card-content'>
+                    <a class='card-title' href='{{game.url}}' target='_blank'>{{ game.title }}</a>
+                    <div class='info'>
+                    {% if game.published %}
+                        Published on {{game.published}}.
+                    {% endif %}
+                    </div>
+                    <div class='info'>
+                    {% if game.last_version %}
+                        Last version: {{game.last_version}} - {{game.updated}}.
+                    {% endif %}
+                    </div>
+
+                    <div class='TagList'>
+                        {% for tag in game.tags %}
+                            <span class='tag'>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <script src="./assets/gameindex.js"></script>
+</body>
+</html>
