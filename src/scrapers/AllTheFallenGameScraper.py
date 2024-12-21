@@ -23,7 +23,19 @@ class AllTheFallenGameScraper(GameScraper):
         self.base_url = "https://allthefallen.moe"
 
     def get_data(self, url: str) -> Dict[str, Optional[str]]:
-        text, final_url = self.get_text(url, method="cloudscraper")
+        arguments = [
+            "--headless=new", # for Chrome >= 109
+            "--disable-gpu",
+            "--no-sandbox",
+            "--disable-extensions",
+            "--disable-blink-features=AutomationControlled"
+        ]
+        def waitfunction(driver,title):
+            WebDriverWait(driver, 15).until(
+                lambda driver: driver.title != title
+            )
+        text, final_url = self.get_text(url, method="undetectable chromedriver", arguments=arguments, waitfunction=waitfunction)
+        
         if not text:
             return {"url": url, "error": "Failed to fetch data"}
 
@@ -37,34 +49,10 @@ class AllTheFallenGameScraper(GameScraper):
             "source": AllTheFallenGameScraper.name
         }
 
-        #########################
-        # TODO
-        #########################
+        
 
 
-        version_dl = soup.find("dl", {"data-field": "version_number"})
-        if version_dl:
-            data["last_version"] = version_dl.find("dd").text
 
-        published = soup.find("time")
-        if published:
-            data["published"] = parse_date(published.text)
-        last_update = soup.find("dl", {"data-field": "last_update"})
-        if last_update:
-            data["updated"] = parse_date(last_update.find("dd").text)
-
-        taglist = soup.find("dl", class_="tagList")
-        if taglist:
-            data["tags"] = list(set([ tag.text.strip() for tag in taglist.find_all("a", class_= "tagItem") ]))
-
-        headline = soup.find("title")
-        headline_text = str(headline)
-        if 'Complete -' in headline_text:
-            data["status"] = "completed"
-        elif '>Abandoned -' in headline_text:
-            data["status"] = "abandoned"
-        elif '>Hiatus -' in headline_text:
-            data["status"] = "abandoned" # treat it as abandoned???
         return data
 
         

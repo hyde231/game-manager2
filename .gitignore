@@ -2,8 +2,14 @@
 **/__pycache__/
 
 # Real data
-data/cookies/*
+data/cookies/*.txt
 data/tag_translation.json
 data/gamelist.json
 urls.txt
 gameindex.html
+
+src/tests/*
+
+# Binaries
+# e.g. chromedriver (to be downloaded and extracted from here: https://googlechromelabs.github.io/chrome-for-testing/)
+/bin

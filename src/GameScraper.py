@@ -133,8 +133,11 @@ class GameScraper(ABC):
             try:
                 scraper = cloudscraper.create_scraper(browser='chrome', delay=10)
                 response = scraper.get(url, cookies=self.cookies, headers=self.headers)
-                response.raise_for_status()
 
+                with open("response_debug.html", "w", encoding="utf-8") as file:
+                    file.write(response.text)
+
+                response.raise_for_status()
                 
                 return response.text, response.url
             except Exception as e:
@@ -145,11 +148,19 @@ class GameScraper(ABC):
                 options = uc.ChromeOptions() if method == "undetectable chromedriver" else Options()
                 for arg in arguments:
                     options.add_argument(arg)
+                options.binary_location = "../../bin/chrome-win64/chrome.exe" 
                 driver = uc.Chrome(options=options) if method == "undetectable chromedriver" else webdriver.Chrome(options=options)
+                # Apply the headers
+                for header, value in self.headers.items():
+                    driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {"headers": {header: value}} )
                 driver.get(url)
-                driver.implicitly_wait(10)
+                # Load the Cookies
+                for name, value in self.cookies.items():  # Iterate over name-value pairs
+                    driver.add_cookie({'name': name, 'value': value})
+                driver.get(url)
+                title = driver.title
                 if waitfunction:
-                    waitfunction(driver)
+                    waitfunction(driver,title)
                 text = driver.page_source
                 final_url = driver.current_url
                 driver.quit()
