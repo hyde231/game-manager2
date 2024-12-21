@@ -26,7 +26,7 @@ class RoriwalrusGameScraper(GameScraper):
 
     def get_data(self, url: str) -> Dict[str, Optional[str]]:
         if not url.startswith("https://www.roriwalrus.com/index.php?downloads/"):
-            return {"url": url, "error": "Url has to start with https://www.roriwalrus.com/index.php?downloads/"}
+            raise ValueError("Url has to start with https://www.roriwalrus.com/index.php?downloads/")
 
         text, final_url = self.get_text(url, method="cloudscraper")
         if not text:
@@ -62,6 +62,11 @@ class RoriwalrusGameScraper(GameScraper):
                     except Exception as e:
                         print(f"Image {src} failed to download. Error: ", e)
 
+            # Published
+            published = soup.find("time")
+            if published:
+                data["published"] = parse_date(published.text).date().isoformat()
+
             # Description
             # TODO
             description_tag = soup.find("meta", property="og:description")
@@ -70,30 +75,30 @@ class RoriwalrusGameScraper(GameScraper):
 
             info_tags = soup.find_all('li', {"data-xf-list-type":"ul"})
             if info_tags:
-                print(info_tags)
+                #print(info_tags)
                 # Developer
                 for tag in info_tags:
-                    span = tag.find('span', string="Developer Name ")
+                    span = tag.find('span', string="Developer Name")
                     if span:
-                        data["developer"] = tag.get_text(strip=True).replace(span.get_text(strip=True), "").strip()
+                        data["developer"] = tag.get_text(strip=True).replace("Developer Name","").strip()
                         break
                 # Version
                 for tag in info_tags:
-                    span = tag.find('span', string="Version number ")
+                    span = tag.find('span', string="Version number")
                     if span:
-                        data["last_version"] = tag.get_text(strip=True).replace(span.get_text(strip=True), "").strip()
+                        data["last_version"] = tag.get_text(strip=True).replace("Version number","").strip()
                         break
                 # Language
                 for tag in info_tags:
-                    span = tag.find('span', string="Language")
+                    span = tag.find('span', string="Language ")
                     if span:
-                        data["language"] = [os.strip().lower() for os in tag.get_text(strip=True).replace(span.get_text(strip=True), "").split(",")]
+                        data["language"] = [os.replace("Language","").strip().lower() for os in tag.get_text(strip=True).split(",")]
                         break
                 # OS
                 for tag in info_tags:
-                    span = tag.find('span', string="OS")
+                    span = tag.find('span', string="OS ")
                     if span:
-                        data["os"] = [os.strip().lower() for os in tag.get_text(strip=True).replace(span.get_text(strip=True), "").split(",")]
+                        data["os"] = [os.replace("OS","").strip().lower() for os in tag.get_text(strip=True).split(",")]
                         break
                     
             

@@ -202,7 +202,7 @@ class F95zoneGameScraper(GameScraper):
                     content_div = spoiler_div.find("div", class_="bbCodeBlock-content")
                     if content_div:
                         # Get the text content, split by "," and strip whitespace
-                        tags = [tag.strip() for tag in content_div.get_text().split(",")]
+                        tags = [tag.lower().strip() for tag in content_div.get_text().split(",")]
                         # Append these tags to data["tags"]
                         if "tags" not in data:
                             data["tags"] = []

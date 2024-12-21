@@ -100,11 +100,11 @@ class LewdCornerGameScraper(GameScraper):
             headline = soup.find("h1")
             headline_text = str(headline)
             # Extract Status
-            if headline.find("span", string="Completed"):
+            if headline.find("span", string="Completed") or headline.find("span", string="Complete"):
                 data["status"] = GameStatus.COMPLETED
             elif headline.find("span", string="Abandoned"):
                 data["status"] = GameStatus.ABANDONED
-            elif headline.find("span", string="Onhold"):
+            elif headline.find("span", string="On Hold"):
                 data["status"] = GameStatus.ONHOLD
             else:
                 data["status"] = GameStatus.UNKNOWN
@@ -161,14 +161,14 @@ class LewdCornerGameScraper(GameScraper):
             genre_tag = soup.find("span", class_="bbCodeSpoiler-button-title", string="Genre:")
             if genre_tag:
                 # Traverse upward until reaching the parent <div> with class "bbCodeSpoiler"
-                bb_code_spoiler = target_tag.find_parent("div", class_="bbCodeSpoiler")
+                bb_code_spoiler = genre_tag.find_parent("div", class_="bbCodeSpoiler")
                 if bb_code_spoiler:
                     # Find the <div> with class "bbCodeBlock-content" inside it
                     bb_code_content = bb_code_spoiler.find("div", class_="bbCodeBlock-content")
                     if bb_code_content:
                         # Extract and split the text by ","
-                        tags = [tag.strip() for tag in bb_code_content.get_text(strip=True).split(",")]
-                        data["tags"] = sorted(list(set(data["tags]"]+tags)))
+                        tags = [tag.lower().strip() for tag in bb_code_content.get_text(strip=True).split(",")]
+                        data["tags"] = sorted(list(set(data["tags"]+tags)))
 
         except Exception as e:
             data["error"] = f"Error parsing data: {e}"

@@ -121,7 +121,7 @@ class FapNationGameScraper(GameScraper):
                 "WebGL": GameEngine.WEBGL,
                 "Wolf RPG": GameEngine.WOLFRPG
             }
-            for text, engine in engine_mapping.items():
+            for text, engine in engine_mappings.items():
                 if headline.find("span", string=lambda t: t.lower() == text.lower() or t.lower() == f"[{text.lower()}]"):
                     data["game_engine"] = engine
                     break  # Exit the loop once a match is found
