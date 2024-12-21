@@ -143,12 +143,12 @@ class GameScraper(ABC):
             except Exception as e:
                 print(f"Error fetching with cloudscraper: {e}")
 
-        elif method in ["chromedriver", "undetectable chromedriver"]:
-            try:
+        elif method == "undetectable chromedriver":
+            #try:
                 options = uc.ChromeOptions() if method == "undetectable chromedriver" else Options()
                 for arg in arguments:
                     options.add_argument(arg)
-                options.binary_location = "../../bin/chrome-win64/chrome.exe" 
+                options.binary_location = "./bin/chrome-win64/chrome.exe" 
                 driver = uc.Chrome(options=options) if method == "undetectable chromedriver" else webdriver.Chrome(options=options)
                 # Apply the headers
                 for header, value in self.headers.items():
@@ -165,12 +165,12 @@ class GameScraper(ABC):
                 final_url = driver.current_url
                 driver.quit()
                 return text, final_url
-            except Exception as e:
+            #except Exception as e:
                 print(f"Error fetching with {method}: {e}")
 
         return "", url
 
-    def get_image(self, src: str, width: Optional[int] = None, method: str = "request", arguments: List[str] = []) -> Optional[str]:
+    def get_image(self, src: str, width: Optional[int] = None, method: str = "request", arguments: List[str] = [], waitfunction: Optional[Callable] = None) -> Optional[str]:
         """
         Fetch an image from the given src, optionally resize it, and return it as a Data URL.
 
@@ -200,19 +200,25 @@ class GameScraper(ABC):
                 response = scraper.get(src, cookies=self.cookies, headers=self.headers)
                 response.raise_for_status()
                 content = response.content
-            elif method in ["chromedriver", "undetectable chromedriver"]:
-                options = uc.ChromeOptions() if method == "undetectable chromedriver" else Options()
+            elif method == "undetectable chromedriver":
+                options = uc.ChromeOptions()
                 for arg in arguments:
                     options.add_argument(arg)
-                driver = uc.Chrome(options=options) if method == "undetectable chromedriver" else webdriver.Chrome(options=options)
+                options.binary_location = "./bin/chrome-win64/chrome.exe" 
+                driver = uc.Chrome(options=options)
+                # Apply the headers
+                for header, value in self.headers.items():
+                    driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {"headers": {header: value}} )
                 driver.get(src)
-                image_element = driver.find_element(By.TAG_NAME, "img")
-                image_src = image_element.get_attribute("src")
+                # Load the Cookies
+                for name, value in self.cookies.items():  # Iterate over name-value pairs
+                    driver.add_cookie({'name': name, 'value': value})
+                driver.get(src)
+                title = driver.title
+                if waitfunction:
+                    waitfunction(driver,title)
+                content = driver.get_screenshot_as_png()
                 driver.quit()
-
-                response = requests.get(image_src, cookies=self.cookies, headers=self.headers)
-                response.raise_for_status()
-                content = response.content
             else:
                 raise ValueError(f"Unsupported method: {method}")
 
