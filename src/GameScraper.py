@@ -134,8 +134,8 @@ class GameScraper(ABC):
                 scraper = cloudscraper.create_scraper(browser='chrome', delay=10)
                 response = scraper.get(url, cookies=self.cookies, headers=self.headers)
 
-                with open("response_debug.html", "w", encoding="utf-8") as file:
-                    file.write(response.text)
+                #with open("response_debug.html", "w", encoding="utf-8") as file:
+                #    file.write(response.text)
 
                 response.raise_for_status()
                 
@@ -239,7 +239,7 @@ class GameScraper(ABC):
             return data_url
 
         except Exception as e:
-            print(f"Error fetching or processing image: {e}")
+            print(f"Error fetching or processing image from url {src}: {e}")
             return None
 
     @abstractmethod

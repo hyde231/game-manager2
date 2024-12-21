@@ -83,10 +83,18 @@ class AllTheFallenGameScraper(GameScraper):
         if version_dl:
             data["last_version"] = version_dl.find("dd").text.strip()
 
+        # Published
+        published = soup.find("time")
+        if published:
+            data["published"] = parse_date(published.text).date().isoformat()
+
         # Last update
         last_update = soup.find("dl", {"data-field": "last_update"})
         if last_update:
-            data["updated"] = parse_date(last_update.find("dd").text.strip()).date().isoformat()
+            try:
+                data["updated"] = parse_date(last_update.find("dd").text.strip()).date().isoformat()
+            except Exception as e:
+                print(f"Last update failed. Error: ", e)
 
         # Developer
         developer_tag = soup.find("dl", {"data-field": "developer_name"})

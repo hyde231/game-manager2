@@ -28,8 +28,8 @@ class FapNationGameScraper(GameScraper):
         if not text:
             return {"url": url, "error": "Failed to fetch data"}
             
-        with open("page_debug.html", "w", encoding="utf-8") as file:
-            file.write(text)
+        #with open("page_debug.html", "w", encoding="utf-8") as file:
+        #    file.write(text)
 
         soup = BeautifulSoup(text, "html.parser")
         data: Dict[str, Optional[str]] = {

@@ -80,7 +80,7 @@ class F95zoneGameScraper(GameScraper):
             # Developer name
             developer_tag = article.find("b", string="Developer")
             # Check if the next sibling is an <a> tag
-            if developer_tag.find_next_sibling("a"):
+            if developer_tag and developer_tag.find_next_sibling("a"):
                 data["developer"] = developer_tag.find_next_sibling("a").text.strip()
             elif developer_tag and developer_tag.next_sibling:
                 data["developer"] = developer_tag.next_sibling.replace(":"," ").strip()
