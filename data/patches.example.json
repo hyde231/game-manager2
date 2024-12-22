@@ -1,0 +1,8 @@
+[
+    {
+        "id": "the id of the entry to correct",
+        "name": "the field that is to be patched",
+        "value": "the new value",
+        "remark": "a reminder for yourself or others, why you did this"
+    }
+]

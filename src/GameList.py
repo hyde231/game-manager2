@@ -145,6 +145,8 @@ class GameList:
         """
         self.games = self.storage.load(Game)
         print(f"Loaded {len(self.games)} games")
+        self.apply_patches()
+        print(f"Patches applied")
 
     def save(self) -> None:
         """
@@ -252,6 +254,17 @@ class GameList:
             except Exception as e:
                 print(f"    Update of {game.title} failed. Error: {e}")
         print()
+
+    def apply_patches(self, patch_file: Optional[str] = None):
+        filename = patch_file or self.config["patch_file"]
+        with open(filename, 'r', encoding='utf-8') as file:
+            patches = json.load(file)
+        for patch in patches:
+            if patch["id"]:
+                game = self.get_by_id(patch["id"])
+                if game:
+                    if hasattr(game, patch["key"]):  # Ensure the attribute exists
+                        setattr(game, patch["key"], patch["value"])
 
 
 def get_image_filenames(game_dir, image_extensions=['.jpg', '.jpeg', '.png', '.gif', '.bmp']):

@@ -5,11 +5,13 @@
 config.json
 
 # Real data
+data/patches.json
 data/cookies/*.txt
 data/tag_translation.json
 data/gamelist.json
 urls.txt
 gameindex.html
+
 
 src/tests/*
 
