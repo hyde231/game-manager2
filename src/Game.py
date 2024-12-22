@@ -6,6 +6,7 @@ import urllib.parse
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
+from enum import Enum
 
 import requests
 
@@ -64,6 +65,8 @@ class Game:
         for key, value in data.items():
             if isinstance(value, datetime):
                 data[key] = value.isoformat()  # Convert to ISO 8601 string
+            if isinstance(value, Enum):
+                data[key] = str(value)
         return data
 
     def from_dict(self, obj: Dict[str, Any], skip_id: bool = True, overwrite: bool = True) -> None:
@@ -190,11 +193,15 @@ class Game:
         if not data:
             data = self.get_data(repository=repository)
 
-        print(data)
+        #print(data)
         self.from_dict(data, overwrite=overwrite)
+
+        if self.published and not self.updated:
+            self.updated = self.published
 
         if self.last_version and self.updated and self.last_version not in self.versions:
             self.versions[self.last_version] = self.updated
+
         self.tags = sorted(list(set(self.tags)))
 
         self.set_my_tags()

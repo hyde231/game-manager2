@@ -84,6 +84,12 @@
                     {% endif %}
                     </div>
                     <div class='info'>
+                        {% if game.updated %}
+                            Updated on {{game.updated}}.
+                        {% endif %}
+                        </div>
+                        
+                    <div class='info'>
                     {% if game.last_version %}
                         Last version: {{game.last_version}} - {{game.updated}}.
                     {% endif %}

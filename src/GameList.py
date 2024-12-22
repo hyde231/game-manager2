@@ -178,6 +178,10 @@ class GameList:
             'heading': "GameList Index",
             'games': self.to_dict()
         }
+
+        for game in data["games"]:
+            game["images"] = get_image_filenames( base_dir, os.path.join( base_dir, game["name"], "Screenshots" ) )
+
         html_content = template.render(data)
         file_name = "gameindex.html"
         path = os.path.join(base_dir,file_name)
@@ -209,14 +213,56 @@ class GameList:
         updates = []
         for game in self.games:
             print(f"  Checking '{game.title}' by {game.developer}                                                                           ", end='\r')
-            data = game.check_for_updates(repository=self.repository)
-            if data and immediate_update:
-                updates.append(game)
-                print(f"    Updating '{game.title}' by {game.developer}")
-                game.update(
-                    repository=self.repository,
-                    data=data
-                )
-                self.update_or_create(game)
+            try:
+                data = game.check_for_updates(repository=self.repository)
+                if data and immediate_update:
+                    updates.append(game)
+                    print(f"    Updating '{game.title}' by {game.developer}")
+                    game.update(
+                        repository=self.repository,
+                        data=data
+                    )
+                    self.update_or_create(game)
+            except Exception as e:
+                print(f"    Update of {game.title} failed. Error: {e}")
         print()
         return updates
+
+    def update_all(self) -> None:
+        """
+        Update all games.
+
+        Parameters:
+
+        Returns:
+        """
+        updates = []
+        for game in self.games:
+            print(f"    Updating '{game.title}' by {game.developer}")
+            try:
+                game.update(repository=self.repository)
+                self.update_or_create(game)
+            except Exception as e:
+                print(f"    Update of {game.title} failed. Error: {e}")
+        print()
+
+
+def get_image_filenames(base_dir, game_root_dir, image_extensions=['.jpg', '.jpeg', '.png', '.gif', '.bmp']):
+    image_files = []
+    for dirpath, _, filenames in os.walk(game_root_dir):
+        for file in filenames:
+            if any(file.lower().endswith(ext) for ext in image_extensions):
+                full_path = os.path.join(dirpath, file)
+                image_files.append(full_path)
+    
+    # Sort files by creation date (oldest first)
+    image_files.sort(key=lambda x: os.path.getctime(x))
+
+    relative_files = []
+    for full_path in image_files:
+        # FIXME this old implementation relied on the index being placed in the archive directory. I want to decouple this now
+        relative_path =  "." + full_path.split("archive")[-1]               # FIXME this is ugly
+        file_name = relative_path.replace('\\', '/').replace(' ', '%20').replace("'","%27")
+        relative_files.append(file_name)
+
+    return relative_files

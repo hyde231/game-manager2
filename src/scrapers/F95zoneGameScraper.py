@@ -65,12 +65,17 @@ class F95zoneGameScraper(GameScraper):
 
                 data["title"] = cleaned_title
 
-            # Release date
+            # Release date - is useless, as it seems to be the same as the thread update, not the first game release
+            # So I set the thread time as release date. Not perfect by any means, but better than this
+            published = soup.find("time")
+            if published:
+                data["published"] = parse_date(published.text).date().isoformat()
+            """
             release_date_tag = article.find("b", string="Release Date")
             if release_date_tag and release_date_tag.next_sibling:
                 #print(f"Published: {release_date_tag.next_sibling}")
                 data["published"] = parse_date(release_date_tag.next_sibling.replace(":"," ").strip()).date().isoformat()
-
+            """
             # Update date
             update_date_tag = article.find("b", string="Thread Updated")
             if update_date_tag and update_date_tag.next_sibling:
