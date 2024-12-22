@@ -22,6 +22,7 @@ class Game:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     url: str = ""  # Now properly defined
     title: str = ""
+    archive_folder: str = "" # to be manually set if the archive's folder name is differnet from title, e.g. if there are multiple games with the same title
     description: str = ""
     developer: str = ""
     source: str = ""

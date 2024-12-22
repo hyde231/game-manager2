@@ -1,6 +1,9 @@
 .venv/
 **/__pycache__/
 
+# Real config
+config.json
+
 # Real data
 data/cookies/*.txt
 data/tag_translation.json

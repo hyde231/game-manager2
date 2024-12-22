@@ -1,4 +1,6 @@
 import os
+import json
+from pathlib import Path
 from typing import List, Optional, Dict, Union, Any
 from jinja2 import Environment, FileSystemLoader
 
@@ -12,17 +14,21 @@ class GameList:
     retrieve, and persist games, as well as generate an HTML index.
     """
 
-    def __init__(self, repository: ScraperRepository, filename: str = "data\gamelist.json"):
+    def __init__(self, repository: ScraperRepository, config_file: str = "data\gamelist.json"):
         """
         Initialize the GameList.
 
         Parameters:
             repository (ScraperRepository): The repository containing available scrapers.
-            filename (str): The path to the JSON file for storing the games.
+            config_file (str): The path to the Config JSON file.
         """
         self.games: List[Game] = []
         self.repository = repository
-        self.storage = JsonStorage(filename)
+        
+        with open(config_file, 'r', encoding='utf-8') as file:
+            self.config = json.load(file)
+
+        self.storage = JsonStorage(self.config["data_file"])
 
     def has(self, title: str) -> bool:
         """
@@ -166,6 +172,7 @@ class GameList:
 
         Parameters:
             base_dir (str): The base directory to save the index file.
+            archive_root_dir (str): The root directory of the archive (with one folder for each game with a matching name, within each a Screenshot folder)
 
         Returns:
             None
@@ -180,7 +187,7 @@ class GameList:
         }
 
         for game in data["games"]:
-            game["images"] = get_image_filenames( base_dir, os.path.join( base_dir, game["name"], "Screenshots" ) )
+            game["images"] = get_image_filenames( os.path.join( self.config["archive_root"], game["archive_folder"] or game["title"], "Screenshots" ) )
 
         html_content = template.render(data)
         file_name = "gameindex.html"
@@ -247,22 +254,23 @@ class GameList:
         print()
 
 
-def get_image_filenames(base_dir, game_root_dir, image_extensions=['.jpg', '.jpeg', '.png', '.gif', '.bmp']):
+def get_image_filenames(game_dir, image_extensions=['.jpg', '.jpeg', '.png', '.gif', '.bmp']):
     image_files = []
-    for dirpath, _, filenames in os.walk(game_root_dir):
+    if not Path(game_dir).is_dir():
+        print(f"No files found for {game_dir}")
+        return []
+
+    for dirpath, _, filenames in os.walk(game_dir):
         for file in filenames:
             if any(file.lower().endswith(ext) for ext in image_extensions):
                 full_path = os.path.join(dirpath, file)
                 image_files.append(full_path)
     
-    # Sort files by creation date (oldest first)
-    image_files.sort(key=lambda x: os.path.getctime(x))
+    # Sort files by modification date (oldest first)
+    # Creation date is not reliable on Windows !!
+    image_files.sort(key=lambda x: os.path.getmtime(x))
 
-    relative_files = []
-    for full_path in image_files:
-        # FIXME this old implementation relied on the index being placed in the archive directory. I want to decouple this now
-        relative_path =  "." + full_path.split("archive")[-1]               # FIXME this is ugly
-        file_name = relative_path.replace('\\', '/').replace(' ', '%20').replace("'","%27")
-        relative_files.append(file_name)
+    # FIXME this is ugly  ???
+    image_files = [ "file:///" + i.replace('\\', '/').replace(' ', '%20').replace("'","%27") for i in image_files ]
 
-    return relative_files
+    return image_files
