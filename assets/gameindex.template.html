@@ -77,7 +77,7 @@
                     {% endif %}
                 </div>
                 <div class='card-content'>
-                    <a class='card-title' href='{{game.url}}' target='_blank'>{{ game.title }}</a>
+                    <a class='card-title' href='{{game.url}}' target='_blank'>{{ game.corrected_title or game.title }}</a>
                     <div class='info'>
                     {% if game.published %}
                         Published on {{game.published}}.

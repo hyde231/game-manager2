@@ -22,6 +22,7 @@ class Game:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     url: str = ""  # Now properly defined
     title: str = ""
+    corrected_title: str = "" # to be manually set or patched, e.g. if the scraped title contains a (changing) version number
     archive_folder: str = "" # to be manually set if the archive's folder name is differnet from title, e.g. if there are multiple games with the same title
     description: str = ""
     developer: str = ""
@@ -54,6 +55,9 @@ class Game:
             # FIXME Skipping actual URL reachability check for simplicity
             # self.url_is_valid = is_url_reachable(self.url)  # too complicated as it would need to handle cookies, logins etc
             self.url_is_valid = True
+        if self.tags:
+            # make sure tags are unique and not empty
+            self.tags = sorted(list(set( [t for t in self.tags if t and len(t)>1] )))
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -67,7 +71,7 @@ class Game:
             if isinstance(value, datetime):
                 data[key] = value.isoformat()  # Convert to ISO 8601 string
             if isinstance(value, Enum):
-                data[key] = str(value)
+                data[key] = value.value
         return data
 
     def from_dict(self, obj: Dict[str, Any], skip_id: bool = True, overwrite: bool = True) -> None:
@@ -86,11 +90,12 @@ class Game:
             if key == "id" and skip_id:
                 continue
             if key == "status" and value:
-                value = GameStatus(value)  # Convert string back to enum
+                value = value if isinstance(value, GameStatus) else GameStatus(value)
             elif key == "game_engine" and value:
-                value = GameEngine(value)  # Convert string back to enum
+                #print(f"from dict: value: {value}, type: {type(value)}")
+                value = value if isinstance(value, GameEngine) else GameEngine(value)
             elif key == "graphic_engine" and value:
-                value = GameRender(value)  # Convert string back to enum
+                value = value if isinstance(value, GameRender) else GameRender(value)
             if hasattr(self, key):
                 current_value = getattr(self, key)
                 if overwrite or not current_value:

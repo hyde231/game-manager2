@@ -99,7 +99,7 @@ class AllTheFallenGameScraper(GameScraper):
         # Developer
         developer_tag = soup.find("dl", {"data-field": "developer_name"})
         if developer_tag:
-            data["developer"] = developer_tag.find("dd").text.strip()
+            data["developer"] = developer_tag.find("dd").text.lower().strip().replace("\n",",")
 
         # OS
         os_tag = soup.find("dl", {"data-field": "os_support"})

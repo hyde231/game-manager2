@@ -85,7 +85,7 @@ class FapNationGameScraper(GameScraper):
                 # Developer name
                 developer_tag = info_div.find("b", string="Developer")
                 if developer_tag and developer_tag.next_sibling:
-                    data["developer"] = developer_tag.next_sibling.replace(":"," ").replace("–","").strip()
+                    data["developer"] = developer_tag.next_sibling.replace(":"," ").replace("–","").lower().strip()
 
         # Get Changelog Tab
         changelog_link = soup.find("a", attrs={"role":"tab"}, text="Changelog")

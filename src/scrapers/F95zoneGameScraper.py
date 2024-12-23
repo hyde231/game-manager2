@@ -85,10 +85,14 @@ class F95zoneGameScraper(GameScraper):
             # Developer name
             developer_tag = article.find("b", string="Developer")
             # Check if the next sibling is an <a> tag
-            if developer_tag and developer_tag.find_next_sibling("a"):
-                data["developer"] = developer_tag.find_next_sibling("a").text.strip()
-            elif developer_tag and developer_tag.next_sibling:
-                data["developer"] = developer_tag.next_sibling.replace(":"," ").strip()
+            if developer_tag:
+                next_link = developer_tag.find_next(lambda tag: tag.name == "a")
+                next_sibling = developer_tag.next_sibling if isinstance(developer_tag.next_sibling, str) else None
+
+                if next_link and next_link.get("href", "").startswith("https://f95zone.to/members/"):
+                    data["developer"] = next_link.text.lower().strip()
+                elif next_sibling:
+                    data["developer"] = next_sibling.lower().replace(":", " ").replace(" -"," ").strip()
 
             # Version
             version_tag = article.find("b", string="Version")
@@ -195,24 +199,31 @@ class F95zoneGameScraper(GameScraper):
                     break  # Exit the loop once a match is found
 
             # F95 Tags
-            data["tags"] = [ tag.text.lower().strip() for tag in soup.find_all("a", class_= "tagItem") ]
-            # Author's / Uploader's tags
+            tags = set()
+            tags.update(
+                tag.text.lower().strip()
+                for tag in soup.find_all("a", class_="tagItem")
+                if tag.text.strip()  # Ensure the tag text is not empty
+            )
+            # Author's / Uploader's Tags
             # Find the <b>Genre</b> tag
             genre_tag = article.find("b", string="Genre")
             if genre_tag:
-                # Find the next sibling div with class "bbCodeSpoiler"
+                # Find the next sibling <div> with class "bbCodeSpoiler"
                 spoiler_div = genre_tag.find_next_sibling("div", class_="bbCodeSpoiler")
                 if spoiler_div:
                     # Find the nested <div class="bbCodeBlock-content">
                     content_div = spoiler_div.find("div", class_="bbCodeBlock-content")
                     if content_div:
-                        # Get the text content, split by "," and strip whitespace
-                        tags = [tag.lower().strip() for tag in content_div.get_text().split(",")]
-                        # Append these tags to data["tags"]
-                        if "tags" not in data:
-                            data["tags"] = []
-                        data["tags"].extend(tags)
-            data["tags"] = sorted(data["tags"])
+                        # Split by "," and clean each tag
+                        tags.update(
+                            tag.lower().strip()
+                            for tag in content_div.get_text().split(",")
+                            if tag.strip()  # Ensure the tag text is not empty
+                        )
+
+            # Store the sorted, unique tags in data["tags"]
+            data["tags"] = sorted(list(tags))
 
         except Exception as e:
             print(f"Error parsing data from article: {e}")

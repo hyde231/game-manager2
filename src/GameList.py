@@ -105,9 +105,12 @@ class GameList:
         Returns:
             Game: The updated or newly added game.
         """
-        existing_game = self.get_by_title(game.title, {"developer":game.developer, "source":game.source})
+        if game.developer:
+            existing_game = self.get_by_title(game.title, {"developer":game.developer, "source":game.source})
+        else:
+            existing_game = self.get_by_title(game.title, {"source":game.source})
         if not existing_game:
-            print(f"Game with title '{game.title}' by {game.developer} not found. Adding it.")
+            print(f"Game with title '{game.title}' by {game.developer or 'unknown'} not found. Adding it.")
             self.games.append(game)
             return game
         existing_game.from_dict(game.to_dict())
@@ -270,7 +273,7 @@ class GameList:
 def get_image_filenames(game_dir, image_extensions=['.jpg', '.jpeg', '.png', '.gif', '.bmp']):
     image_files = []
     if not Path(game_dir).is_dir():
-        print(f"No files found for {game_dir}")
+        #print(f"No files found for {game_dir}")
         return []
 
     for dirpath, _, filenames in os.walk(game_dir):

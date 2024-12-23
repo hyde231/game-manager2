@@ -69,7 +69,7 @@ class LewdCornerGameScraper(GameScraper):
             # Developer
             developer_tag = soup.find('dl', class_="pairs--customField", attrs={"data-field": "Developer"})
             if developer_tag:
-                data["developer"] =  developer_tag.find('dd').get_text(strip=True)
+                data["developer"] =  developer_tag.find('dd').get_text(strip=True).lower()
 
             # Version
             version_dl = soup.find("dl", {"data-field": "version"})

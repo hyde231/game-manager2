@@ -80,7 +80,7 @@ class RoriwalrusGameScraper(GameScraper):
                 for tag in info_tags:
                     span = tag.find('span', string="Developer Name")
                     if span:
-                        data["developer"] = tag.get_text(strip=True).replace("Developer Name","").strip()
+                        data["developer"] = tag.get_text(strip=True).replace("Developer Name","").lower().strip()
                         break
                 # Version
                 for tag in info_tags:
